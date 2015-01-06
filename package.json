@@ -6,6 +6,12 @@
   "scripts": {
     "test": "npm test"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xeodou/react-range-slider.git"
+  },
+  "bugs": "https://github.com/xeodou/react-range-slider/issues",
+  "homepage": "https://github.com/xeodou/react-range-slider",
   "keywords": [
     "react",
     "react-component",
