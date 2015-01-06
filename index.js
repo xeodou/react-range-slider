@@ -223,6 +223,14 @@ var RangeSlider = React.createClass({
     this.addEvent(window, 'resize', this.handleResize);
   },
 
+  componentWillReceiveProps: function(nextProps) {
+    if(nextProps.value) {
+      this.setState({
+        value: valureFormat(nextProps.value, this.props.max - this.props.min)
+      });
+    }
+  },
+
   componentDidMount: function () {
     this.handleResize();
 
