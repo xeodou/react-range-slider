@@ -224,11 +224,16 @@ var RangeSlider = React.createClass({
     this.addEvent(window, 'resize', this.handleResize);
   },
 
-  componentWillReceiveProps: function(nextProps) {
-    if(nextProps.value) {
+  componentWillReceiveProps: function (nextProps) {
+    if (nextProps.value) {
       this.setState({
         value: valureFormat(nextProps.value, this.props.max - this.props.min)
-      });
+      }, function () {
+        // Calculate the bound size again, if the bound size less than 0
+        if (this.state.upperBound <= 0) {
+          this.handleResize();
+        }
+      }.bind(this));
     }
   },
 
@@ -343,7 +348,8 @@ var RangeSlider = React.createClass({
 
   renderCursor: function (offset, i, child) {
     var l = this.state.value.length;
-    var ref = 'cursor' + i, zIndex = i + 1;
+    var ref = 'cursor' + i,
+      zIndex = i + 1;
     if (i === 0) {
       ref = 'header';
       zIndex = 0;
@@ -365,10 +371,10 @@ var RangeSlider = React.createClass({
 
   renderCursors: function (offsets) {
     var handlers = [];
-    if(this.props.withCursor) {
+    if (this.props.withCursor) {
       handlers = offsets.map(function (offset, i) {
-      return this.renderCursor(offset, i + 1)
-    }, this);
+        return this.renderCursor(offset, i + 1)
+      }, this);
     }
     if (this.state.header) {
       handlers.splice(0, 0, this.renderCursor(this.calcOffset(this.state.min), 0,
