@@ -17,7 +17,7 @@ var App = React.createClass({
           <h4>A flexible Slider for reactjs</h4>
         </div>
         <div id='main'>
-          <RangeSlider max={200} step={10} value={['#FAD', '#FADFAD']} withBars range/>
+          <RangeSlider value={[ '#42c6da','#3cb9ec','#42a5f5','#4a80df','#5c6bc0']} withBars/>
         </div>
       </div>
     )

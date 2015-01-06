@@ -178,6 +178,7 @@ var RangeSlider = React.createClass({
       defaultValue: 0,
       orientation: 'horizontal',
       withBars: false,
+      withCursor: false,
       pearling: false,
       disabled: false,
       onBeforeChange: emptyFunction,
@@ -363,9 +364,12 @@ var RangeSlider = React.createClass({
   },
 
   renderCursors: function (offsets) {
-    var handlers = offsets.map(function (offset, i) {
+    var handlers = [];
+    if(this.props.withCursor) {
+      handlers = offsets.map(function (offset, i) {
       return this.renderCursor(offset, i + 1)
     }, this);
+    }
     if (this.state.header) {
       handlers.splice(0, 0, this.renderCursor(this.calcOffset(this.state.min), 0,
         React.createElement('span', null, this.state.min)));
