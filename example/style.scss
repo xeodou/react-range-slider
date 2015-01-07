@@ -105,10 +105,10 @@ body {
   .cursor {
     width: 4px;
     height: inherit;
+    padding: 8px;
     background-color: #FFA52F;
     &.header {
       height: inherit;
-      padding: 0 0;
     }
     & span {
       position: absolute;
@@ -118,7 +118,7 @@ body {
     }
   }
   .bars {
-    height: 4px;
+    height: 24px;
     background-color: #BDBDBD;
     position: absolute;
     width: 100%;

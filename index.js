@@ -3,7 +3,7 @@ var cx = React.addons.classSet;
 var PropTypes = React.PropTypes;
 var emptyFunction = require('react/lib/emptyFunction');
 var event = require('./event');
-var Handler = React.createFactory(require('./Handler'));
+var Cursor = React.createFactory(require('./Cursor'));
 
 /**
  * To prevent text selection while dragging.
@@ -239,11 +239,6 @@ var RangeSlider = React.createClass({
 
   componentDidMount: function () {
     this.handleResize();
-
-    // var value = map(this.state.value, this._trimAlignValue);
-    // this.setState({
-    //   value: value
-    // });
   },
 
   componentWillUnmount: function () {
@@ -289,7 +284,7 @@ var RangeSlider = React.createClass({
       index: i,
     });
 
-    this.props.onBeforeChange(e);
+    this.props.onBeforeChange(e, i - 1);
 
     // Add event handlers
     this.addEvent(window, this.dragEventFor['move'], this.handleDrag);
@@ -306,28 +301,36 @@ var RangeSlider = React.createClass({
       diffValue = (diffPosition / this.state.upperBound) * (this.props.max - this.props.min),
       i = this.state.index,
       l = this.state.value.length;
+    // Cursor position after moved
+    var _v = this.state.startValue + diffValue;
     if (i === 0) {
       // Move header
       // if(this.props.disabledHeader) return;
       var v = l > 0 ? finder(Math.min, this.state.value, 'value') : this.state.max;
-      var _v = diffValue + this.state.startValue;
       this.setState({
         min: parseInt(Math.max(_v <= v ? (_v < 0 ? 0 : _v) : v, this.props.min), 10)
       });
     } else if (0 < i < l) {
       // Move cursor
-
-
+      // The cursor postion must smaller than the next cursor or this.state.max
+      // bigger than the previous cursor or this.state.min
+      var value = this.state.value;
+      // var v = value[i - 1].value;
+      var min = (value[i - 2] ? value[i- 2].value : this.state.min);
+      var max = value[i] ? value[i].value : this.state.max;
+      value[i - 1].value = parseInt(Math.max(Math.min(_v, max), min), 10);
+      this.setState({
+        value: value
+      });
     } else if (i === l + 1) {
       // Move tailer
       var v = l > 0 ? finder(Math.max, this.state.value, 'value') : this.state.min;
-      var _v = this.state.startValue + diffValue;
       this.setState({
         max: parseInt(Math.min(_v >= v ? _v : v, this.props.max))
       });
     }
 
-    this.props.onChange(this.state.value);
+    this.props.onChange(e, i - 1, this.state.value);
   },
 
   handleDragEnd: function (e) {
@@ -335,7 +338,7 @@ var RangeSlider = React.createClass({
       index: -1
     });
 
-    this.props.onAfterChange(this.state.value);
+    this.props.onAfterChange(e, this.state.value);
 
     // Remove event handlers
     this.removeEvent(window, this.dragEventFor['move'], this.handleDrag);
@@ -357,7 +360,7 @@ var RangeSlider = React.createClass({
       ref = 'tailer';
       zIndex = 0;
     }
-    return Handler({
+    return Cursor({
       axis: this.state.axis,
       offset: offset,
       ref: ref,
@@ -370,22 +373,22 @@ var RangeSlider = React.createClass({
   },
 
   renderCursors: function (offsets) {
-    var handlers = [];
+    var cursors = [];
     if (this.props.withCursor) {
-      handlers = offsets.map(function (offset, i) {
+      cursors = offsets.map(function (offset, i) {
         return this.renderCursor(offset, i + 1)
       }, this);
     }
     if (this.state.header) {
-      handlers.splice(0, 0, this.renderCursor(this.calcOffset(this.state.min), 0,
+      cursors.splice(0, 0, this.renderCursor(this.calcOffset(this.state.min), 0,
         React.createElement('span', null, this.state.min)));
     }
     if (this.state.tailer) {
-      var l = handlers.length;
-      handlers.push(this.renderCursor(this.calcOffset(this.state.max), l,
+      var l = cursors.length;
+      cursors.push(this.renderCursor(this.calcOffset(this.state.max), l,
         React.createElement('span', null, this.state.max)));
     }
-    return handlers;
+    return cursors;
   },
 
   // calculates the offset of a handle in pixels based on its value.

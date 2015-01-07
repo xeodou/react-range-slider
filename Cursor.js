@@ -2,9 +2,9 @@ var React = require('react');
 var PropTypes = React.PropTypes;
 var emptyFunction = require('react/lib/emptyFunction');
 
-var Handler = React.createClass({
+var Cursor = React.createClass({
 
-  displayName: 'RangeSliderHandler',
+  displayName: 'RangeSliderCursor',
 
   propTypes: {
     axis: PropTypes.oneOf(['X', 'Y']),
@@ -51,4 +51,4 @@ var Handler = React.createClass({
 
 });
 
-module.exports = Handler;
+module.exports = Cursor;
