@@ -18,49 +18,6 @@ function pauseEvent(e) {
 }
 
 /**
- * Reduce `v` with `f` and `init` or call `f` directly with `init` and `v` if it is a single value.
- */
-function reduce(v, f, init) {
-  return (v && v.reduce) ? v.reduce(f, init) : f(init, v, 0);
-}
-
-/**
- * Returns the size of `v` if it is an array, or 1 if it is a single value or 0 if it does not exists.
- */
-function size(v) {
-  return v != null ? v.length ? v.length : 1 : 0;
-}
-
-/**
- * Returns the value at `i` if `v` is an array. Just returns the value otherwise.
- */
-function at(v, i) {
-  return v && v.map ? v[i] : v;
-}
-
-/**
- * Compares `a` and `b` which can be either single values or an array of values.
- */
-function is(a, b) {
-  return size(a) === size(b) &&
-    reduce(a, function (res, v, i) {
-      return res && v === at(b, i)
-    }, true);
-}
-
-/**
- * Spreads `count` values equally between `min` and `max`.
- */
-function linspace(min, max, count) {
-  var range = (max - min) / (count - 1);
-  var res = [];
-  for (var i = 0; i < count; i++) {
-    res.push(range * i);
-  }
-  return res;
-}
-
-/**
  * Fomat [1, 2] or ['#FFF', '#FAD']
  * To [{value:1, color: null}] or [{value: '20%', color: '#FFF'}]
  */
@@ -149,24 +106,89 @@ var RangeSlider = React.createClass({
      * ```
      */
     orientation: PropTypes.oneOf(['horizontal', 'vertical']),
+    /**
+     * Options is slider show the bars or not, default false.
+     */
     withBars: PropTypes.bool,
+    /**
+     * Options is slider show the cursors or not, default false.
+     */
     withCursor: PropTypes.bool,
-    pearling: PropTypes.bool,
+    /**
+     * Options disable slider, default false.
+     * If set diabled with true cursors in the slider will unable to drag.
+     */
     disabled: PropTypes.bool,
-
+    /**
+     *
+     * Range for slider, menas you can set header or tailer cursor or both, something like blow:
+     *        -|-----------|-
+     * Example:
+     *
+     * ```
+     *  <RangeSlider range />
+     *  or
+     *  <RangeSlider range={[true, false]} />
+     *  or
+     *  <RangeSlider range={[10, 90]} />
+     *
+     * ```
+     */
     range: PropTypes.oneOfType([
       PropTypes.bool,
       PropTypes.arrayOf(PropTypes.bool),
       PropTypes.arrayOf(PropTypes.number)
     ]),
+    /**
+     * Disable slider header cursor.
+     *
+     * Example:
+     * ```
+     *  <RangeSlider range={[10]} disabledHeader/>
+     * ```
+     */
     disabledHeader: PropTypes.bool,
+    /**
+     * Disable slider tailer cursor.
+     *
+     * Example:
+     * ```
+     *  <RangeSlider range={[null, 90]} disabledTailer/>
+     * ```
+     */
     disabledTailer: PropTypes.bool,
-
+    /**
+     * Hook event for when mouse down for each cursor.
+     *
+     * Example:
+     * ```
+     *  <RangeSlider onMouseDown={somefunction} />
+     * ```
+     */
     onMouseDown: PropTypes.func,
+    /**
+     * Hook function before cursor dragging.
+     */
     onBeforeChange: PropTypes.func,
+    /**
+     * Hook function when cursor dragging.
+     */
     onChange: PropTypes.func,
+    /**
+     * Hook function after cursor dragging.
+     */
     onAfterChange: PropTypes.func,
-    // Bar click event
+    /**
+     * Click event for each bar.
+     *
+     * Example:
+     * ```
+     *   <RangeSlider onBarClick={somefunction(evt[, index, color])} />
+     * ```
+     * @param {Object} Event click event instance.
+     * @param {Number} Index Index of the clicked bar.
+     * @param {String} Color Clicked bar's background color.
+     */
     onBarClick: PropTypes.func
   },
 
@@ -208,7 +230,6 @@ var RangeSlider = React.createClass({
       tailer: tailer,
       index: -1, // TODO: find better solution
       upperBound: 0,
-      sliderLength: 0,
       axis: this.isHorizontal() ? 'X' : 'Y',
       minProp: this.isHorizontal() ? 'left' : 'top',
       maxProp: this.isHorizontal() ? 'right' : 'bottom',
@@ -260,8 +281,7 @@ var RangeSlider = React.createClass({
     var sliderMin = rect[this.props.minProp];
 
     this.setState({
-      upperBound: slider[size] - (handle[size] || 0),
-      sliderLength: sliderMax - sliderMin
+      upperBound: slider[size] - (handle[size] || 0)
     });
   },
 
