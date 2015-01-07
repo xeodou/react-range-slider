@@ -21,11 +21,11 @@ function pauseEvent(e) {
  * Fomat [1, 2] or ['#FFF', '#FAD']
  * To [{value:1, color: null}] or [{value: '20%', color: '#FFF'}]
  */
-function valureFormat(value, range) {
+function valueFormat(value, max, min) {
   value = typeof value === 'number' ? [value] : value;
   return value.map(function (v, i) {
     return typeof v === 'object' ? v : {
-      value: typeof v === 'number' ? v : parseInt((i + 1) * range / value.length, 10),
+      value: typeof v === 'number' ? v : (parseInt((i + 1) * (max - min) / value.length, 10) + min),
       color: typeof v === 'string' ? v : ''
     };
   });
@@ -234,7 +234,7 @@ var RangeSlider = React.createClass({
       axis: this.isHorizontal() ? 'X' : 'Y',
       minProp: this.isHorizontal() ? 'left' : 'top',
       maxProp: this.isHorizontal() ? 'right' : 'bottom',
-      value: valureFormat(this.props.value, this.props.max - this.props.min)
+      value: valueFormat(this.props.value, max, min)
     };
   },
 
@@ -249,7 +249,7 @@ var RangeSlider = React.createClass({
   componentWillReceiveProps: function (nextProps) {
     if (nextProps.value) {
       this.setState({
-        value: valureFormat(nextProps.value, this.props.max - this.props.min)
+        value: valueFormat(nextProps.value, this.props.max, this.props.min)
       }, function () {
         // Calculate the bound size again, if the bound size less than 0
         if (this.state.upperBound <= 0) {
@@ -381,9 +381,13 @@ var RangeSlider = React.createClass({
     if (i === 0) {
       ref = 'header';
       zIndex = 0;
+      child = child || React.createElement('span', null, this.state.min);
     } else if (i === l + 1) {
       ref = 'tailer';
       zIndex = 0;
+      child = child || React.createElement('span', null, this.state.max);
+    } else {
+      child = child || React.createElement('span', null, this.state.value[i - 1] ? this.state.value[i - 1].value : null);
     }
     return Cursor({
       axis: this.state.axis,
@@ -405,8 +409,7 @@ var RangeSlider = React.createClass({
       }, this);
     }
     if (this.state.header) {
-      cursors.splice(0, 0, this.renderCursor(this.calcOffset(this.state.min), 0,
-        React.createElement('span', null, this.state.min)));
+      cursors.splice(0, 0, this.renderCursor(this.calcOffset(this.state.min), 0));
     }
     if (this.state.tailer) {
       var l = cursors.length;
