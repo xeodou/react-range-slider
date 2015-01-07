@@ -229,6 +229,7 @@ var RangeSlider = React.createClass({
       header: header,
       tailer: tailer,
       index: -1, // TODO: find better solution
+      clicked: -1,
       upperBound: 0,
       axis: this.isHorizontal() ? 'X' : 'Y',
       minProp: this.isHorizontal() ? 'left' : 'top',
@@ -366,6 +367,9 @@ var RangeSlider = React.createClass({
   },
 
   handleBarClick: function (i, e) {
+    this.setState({
+      clicked: i
+    });
     this.props.onBarClick(e, i, this.state.value[i]);
   },
 
@@ -428,7 +432,7 @@ var RangeSlider = React.createClass({
     return React.createElement('div', {
       key: 'bar' + i,
       ref: 'bar' + i,
-      className: 'bar bar-' + i,
+      className: 'bar bar-' + i + (this.state.clicked === i ? ' active' : ''),
       style: style,
       onClick: this.handleBarClick.bind(this, i)
     });
