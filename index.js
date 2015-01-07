@@ -303,6 +303,7 @@ var RangeSlider = React.createClass({
       startValue: value,
       startPosition: position,
       index: i,
+      clicked: -1
     });
 
     this.props.onBeforeChange(e, i - 1);
