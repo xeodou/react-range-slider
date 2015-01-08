@@ -215,7 +215,6 @@ var RangeSlider = React.createClass({
   mixins: [event],
 
   getInitialState: function () {
-    this.componentWillReceiveProps(this.props)
     return {
       index: -1, // TODO: find better solution
       clicked: -1,
@@ -232,6 +231,7 @@ var RangeSlider = React.createClass({
   },
 
   componentWillMount: function () {
+    this.componentWillReceiveProps(this.props)
     this.addEvent(window, 'resize', this.handleResize);
   },
 
@@ -380,13 +380,23 @@ var RangeSlider = React.createClass({
     if (i === 0) {
       ref = 'header';
       zIndex = 0;
-      child = child || React.createElement('span', null, this.state.min);
+      child = child || React.createElement('span', null,
+        React.createElement('span',
+          null,
+          this.state.min)
+      );
     } else if (i === l + 1) {
       ref = 'tailer';
       zIndex = 0;
-      child = child || React.createElement('span', null, this.state.max);
+      child = child || React.createElement('span', null,
+        React.createElement('span', null,
+          this.state.max)
+      );
     } else {
-      child = child || React.createElement('span', null, this.state.value[i - 1] ? this.state.value[i - 1].value : null);
+      child = child || React.createElement('span', null,
+        React.createElement('span', null,
+          this.state.value[i - 1] ? this.state.value[i - 1].value : null)
+      );
     }
     return Cursor({
       axis: this.state.axis,
@@ -420,7 +430,7 @@ var RangeSlider = React.createClass({
 
   // calculates the offset of a handle in pixels based on its value.
   calcOffset: function (v) {
-    if(typeof v === 'undefined') return;
+    if (typeof v === 'undefined') return;
     v = typeof v === 'number' ? v : v.value;
     var ratio = (v - this.props.min) / (this.props.max - this.props.min);
     return ratio * this.state.upperBound;
