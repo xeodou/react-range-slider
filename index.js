@@ -215,26 +215,15 @@ var RangeSlider = React.createClass({
   mixins: [event],
 
   getInitialState: function () {
-    var range = this.props.range,
-      range = (range ? (typeof range === 'boolean' ? [range, range] : range) : []),
-      header = range[0],
-      tailer = range[1],
-      min = this.props.min,
-      max = this.props.max,
-      min = typeof header === 'number' ? Math.max(header, min) : min,
-      max = typeof tailer === 'number' ? Math.min(Math.max(tailer, min), max) : max;
+    this.componentWillReceiveProps(this.props)
     return {
-      min: min,
-      max: max,
-      header: header,
-      tailer: tailer,
       index: -1, // TODO: find better solution
       clicked: -1,
       upperBound: 0,
       axis: this.isHorizontal() ? 'X' : 'Y',
       minProp: this.isHorizontal() ? 'left' : 'top',
       maxProp: this.isHorizontal() ? 'right' : 'bottom',
-      value: valueFormat(this.props.value, max, min)
+      value: []
     };
   },
 
@@ -247,16 +236,26 @@ var RangeSlider = React.createClass({
   },
 
   componentWillReceiveProps: function (nextProps) {
-    if (nextProps.value) {
-      this.setState({
-        value: valueFormat(nextProps.value, this.props.max, this.props.min)
-      }, function () {
-        // Calculate the bound size again, if the bound size less than 0
-        if (this.state.upperBound <= 0) {
-          this.handleResize();
-        }
-      }.bind(this));
-    }
+    var range = nextProps.range || this.props.range,
+      range = (range ? (typeof range === 'boolean' ? [range, range] : range) : []),
+      header = range[0],
+      tailer = range[1],
+      min = nextProps.min || this.props.min,
+      max = nextProps.max || this.props.max,
+      min = typeof header === 'number' ? Math.max(header, min) : min,
+      max = typeof tailer === 'number' ? Math.min(Math.max(tailer, min), max) : max;
+    this.setState({
+      min: min,
+      max: max,
+      header: header,
+      tailer: tailer,
+      value: valueFormat(nextProps.value || this.props.value, max, min)
+    }, function () {
+      // Calculate the bound size again, if the bound size less than 0
+      if (this.state.upperBound <= 0) {
+        this.handleResize();
+      }
+    }.bind(this));
   },
 
   componentDidMount: function () {
@@ -338,7 +337,7 @@ var RangeSlider = React.createClass({
       // bigger than the previous cursor or this.state.min
       var value = this.state.value;
       // var v = value[i - 1].value;
-      var min = (value[i - 2] ? value[i- 2].value : this.state.min);
+      var min = (value[i - 2] ? value[i - 2].value : this.state.min);
       var max = value[i] ? value[i].value : this.state.max;
       value[i - 1].value = parseInt(Math.max(Math.min(_v, max), min), 10);
       this.setState({
@@ -421,6 +420,7 @@ var RangeSlider = React.createClass({
 
   // calculates the offset of a handle in pixels based on its value.
   calcOffset: function (v) {
+    if(typeof v === 'undefined') return;
     v = typeof v === 'number' ? v : v.value;
     var ratio = (v - this.props.min) / (this.props.max - this.props.min);
     return ratio * this.state.upperBound;
