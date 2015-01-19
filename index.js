@@ -326,7 +326,7 @@ var RangeSlider = React.createClass({
     var _v = this.state.startValue + diffValue;
     if (i === 0) {
       // Move header
-      // if(this.props.disabledHeader) return;
+      if(this.props.disabledHeader) return;
       var v = l > 0 ? finder(Math.min, this.state.value, 'value') : this.state.max;
       this.setState({
         min: parseInt(Math.max(_v <= v ? (_v < 0 ? 0 : _v) : v, this.props.min), 10)
@@ -345,6 +345,7 @@ var RangeSlider = React.createClass({
       });
     } else if (i === l + 1) {
       // Move tailer
+      if(this.props.disabledTailer) return;
       var v = l > 0 ? finder(Math.max, this.state.value, 'value') : this.state.min;
       this.setState({
         max: parseInt(Math.min(_v >= v ? _v : v, this.props.max))
