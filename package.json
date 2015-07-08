@@ -24,7 +24,7 @@
     ]
   },
   "peerDependencies": {
-    "react": "0.12.x"
+    "react": "0.13.x"
   },
   "author": "xeodou@gmail.com",
   "license": "MIT",
@@ -39,7 +39,7 @@
     "gulp-sass": "^0.7.3",
     "gulp-size": "^1.1.0",
     "jest-cli": "^0.1.18",
-    "react": "^0.12.1",
+    "react": "^0.13.3",
     "reactify": "^0.17.1"
   }
 }

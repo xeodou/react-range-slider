@@ -1,6 +1,7 @@
 var React = require('react');
 var PropTypes = React.PropTypes;
 var emptyFunction = require('react/lib/emptyFunction');
+var merge = require('react/lib/Object.assign');
 
 var Cursor = React.createClass({
 
@@ -35,15 +36,17 @@ var Cursor = React.createClass({
   },
 
   render: function () {
-    var props = this.props;
-    props.style = this.getStyle();
-    props.onMouseDown = this.props.onDragStart;
-    props.onTouchStart = function (e) {
-      e.preventDefault(); // prevent for scroll
-      return this.props.onDragStart.apply(null, arguments);
-    }.bind(this);
-    props.onMouseUp = this.props.onDragEnd;
-    props.onTouchEnd = this.props.onDragEnd;
+    var props = merge({
+      style: this.getStyle(),
+      onMouseDown: this.props.onDragStart,
+      onTouchStart: function (e) {
+        e.preventDefault(); // prevent for scroll
+        return this.props.onDragStart.apply(null, arguments);
+      }.bind(this),
+      onMouseUp: this.props.onDragEnd,
+      onTouchEnd: this.props.onDragEnd
+    }, this.props);
+
     return (
       React.createElement('div', props, this.props.children)
     );
