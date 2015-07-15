@@ -1,7 +1,13 @@
-var React = require('react/addons');
-var cx = React.addons.classSet;
+/*
+* react-range-slider - index.js
+* Copyright(c) 2015 xeodou <xeodou@gmail.com>
+* MIT Licensed
+*/
+
+var React = require('react');
 var PropTypes = React.PropTypes;
 var emptyFunction = require('react/lib/emptyFunction');
+var assign = require('object-assign');
 var event = require('./event');
 var Cursor = React.createFactory(require('./Cursor'));
 
@@ -18,7 +24,7 @@ function pauseEvent(e) {
 }
 
 /**
- * Fomat [1, 2] or ['#FFF', '#FAD']
+ * Format [1, 2] or ['#FFF', '#FAD']
  * To [{value:1, color: null}] or [{value: '20%', color: '#FFF'}]
  */
 function valueFormat(value, max, min) {
@@ -112,8 +118,13 @@ var RangeSlider = React.createClass({
     withBars: PropTypes.bool,
     /**
      * Options is slider show the cursors or not, default false.
+     * You can also set up a custom cursor and implement like
+     * ./Cursor.js
      */
-    withCursor: PropTypes.bool,
+    cursor: PropTypes.oneOfType([
+      PropTypes.bool,
+      PropTypes.element
+    ]),
     /**
      * Options disable slider, default false.
      * If set diabled with true cursors in the slider will unable to drag.
@@ -200,7 +211,7 @@ var RangeSlider = React.createClass({
       defaultValue: 0,
       orientation: 'horizontal',
       withBars: false,
-      withCursor: false,
+      cursor: false,
       pearling: false,
       disabled: false,
       onBeforeChange: emptyFunction,
@@ -374,57 +385,49 @@ var RangeSlider = React.createClass({
     this.props.onBarClick(e, i, this.state.value[i]);
   },
 
-  renderCursor: function (offset, i, child) {
-    var l = this.state.value.length;
-    var ref = 'cursor' + i,
-      zIndex = i + 1;
-    if (i === 0) {
-      ref = 'header';
-      zIndex = 0;
-      child = child || React.createElement('span', null,
-        React.createElement('span',
-          null,
-          this.state.min)
-      );
-    } else if (i === l + 1) {
-      ref = 'tailer';
-      zIndex = 0;
-      child = child || React.createElement('span', null,
-        React.createElement('span', null,
-          this.state.max)
-      );
-    } else {
-      child = child || React.createElement('span', null,
-        React.createElement('span', null,
-          this.state.value[i - 1] ? this.state.value[i - 1].value : null)
-      );
-    }
-    return Cursor({
-      axis: this.state.axis,
-      offset: offset,
-      ref: ref,
-      key: ref,
-      zIndex: zIndex,
-      className: 'cursor ' + ref,
-      onDragStart: this.handleDragStart.bind(null, i),
-      onDragEnd: this.handleDragEnd
-    }, child)
-  },
-
   renderCursors: function (offsets) {
     var cursors = [];
-    if (this.props.withCursor) {
+    var l = this.state.value.length;
+    var opts = {
+      axis: this.state.axis,
+      size: l,
+      onDragEnd: this.handleDragEnd
+    }
+    if (this.props.cursor) {
       cursors = offsets.map(function (offset, i) {
-        return this.renderCursor(offset, i + 1)
+        return Cursor(assign({}, opts, {
+          offset: offset,
+          position: i + 1,
+          ref: 'cursor' + (i + 1),
+          key: 'cursor' + (i + 1),
+          className: 'cursor cursor' + (i + 1),
+          value: this.state.value[i] ? this.state.value[i].value : null,
+          onDragStart: this.handleDragStart.bind(null, i + 1),
+        }))
       }, this);
     }
     if (this.state.header) {
-      cursors.splice(0, 0, this.renderCursor(this.calcOffset(this.state.min), 0));
+      cursors.splice(0, 0, Cursor(assign({}, opts, {
+          offset: this.calcOffset(this.state.min),
+          position: 0,
+          ref: 'header',
+          key: 'header',
+          className: 'cursor header',
+          value: this.state.min,
+          onDragStart: this.handleDragStart.bind(null, 0)
+        })));
     }
     if (this.state.tailer) {
       var l = cursors.length;
-      cursors.push(this.renderCursor(this.calcOffset(this.state.max), l,
-        React.createElement('span', null, this.state.max)));
+      cursors.push(Cursor(assign({}, opts, {
+        offset: this.calcOffset(this.state.max),
+        position: l,
+        ref: 'tailer',
+        key: 'tailer',
+        className: 'cursor tailer',
+        value: this.state.max,
+        onDragStart: this.handleDragStart.bind(null, l + 1)
+      })))
     }
     return cursors;
   },

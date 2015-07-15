@@ -1,4 +1,5 @@
 var React = require('react');
+var assign = require('object-assign');
 var PropTypes = React.PropTypes;
 var emptyFunction = require('react/lib/emptyFunction');
 
@@ -10,13 +11,16 @@ var Cursor = React.createClass({
     axis: PropTypes.oneOf(['X', 'Y']),
     offset: PropTypes.number,
     onDragStart: PropTypes.func,
-    onDragEnd: PropTypes.func
+    onDragEnd: PropTypes.func,
+    value: PropTypes.number
   },
 
   getDefaultProps: function () {
     return {
       axis: 'X',
       offset: 0,
+      size: 0,
+      position: 0,
       onDragStart: emptyFunction,
       onDragEnd: emptyFunction
     };
@@ -34,8 +38,10 @@ var Cursor = React.createClass({
     }
   },
 
-  render: function () {
-    var props = this.props;
+  getProps: function () {
+    var props = assign({}, this.props);
+    var i = this.props.position;
+    var l = this.props.size;
     props.style = this.getStyle();
     props.onMouseDown = this.props.onDragStart;
     props.onTouchStart = function (e) {
@@ -44,8 +50,18 @@ var Cursor = React.createClass({
     }.bind(this);
     props.onMouseUp = this.props.onDragEnd;
     props.onTouchEnd = this.props.onDragEnd;
+    props.zIndex = (i === 0 || i === l + 1) ? 0 : i + 1;
+    return props;
+  },
+
+  render: function () {
     return (
-      React.createElement('div', props, this.props.children)
+      React.createElement('div', this.getProps(),
+        React.createElement('span', null,
+          React.createElement('span', null,
+            this.props.value)
+        )
+      )
     );
   }
 

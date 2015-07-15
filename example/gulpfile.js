@@ -7,6 +7,7 @@ var path = require('path');
 var sass = require('gulp-sass');
 var deploy = require('gulp-gh-pages');
 var pkg = require('../package.json');;
+var connect = require('gulp-connect');
 
 var root = path.resolve(__dirname)
 
@@ -41,6 +42,14 @@ gulp.task('browserify', function() {
     .pipe($.size());
 });
 
+// Connect
+gulp.task('connect', function() {
+  connect.server({
+    root: 'build',
+    livereload: true
+  });
+});
+
 // Clean
 gulp.task('clean', function() {
   return gulp.src([root + '/build/*'], {
@@ -50,11 +59,13 @@ gulp.task('clean', function() {
 });
 
 // Watch
-gulp.task('watch', function() {
+gulp.task('watch', ['connect'], function() {
+  // index html
+  gulp.watch('index.html', ['index']);
   // Wathch .scss files
   gulp.watch('style.scss', ['sass']);
   // Watch .jsx files
-  gulp.watch('app.js', ['browserify']);
+  gulp.watch(['app.js', '../index.js'], ['browserify']);
 
 })
 
