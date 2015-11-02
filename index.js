@@ -363,7 +363,11 @@ var RangeSlider = React.createClass({
       });
     }
 
-    this.props.onChange(e, i - 1, this.state.value);
+    this.props.onChange(e, i - 1, {
+      value: this.state.value,
+      min: this.state.min,
+      max: this.state.max
+    });
   },
 
   handleDragEnd: function (e) {
