@@ -6,7 +6,7 @@
 
 var React = require('react');
 var PropTypes = React.PropTypes;
-var emptyFunction = require('react/lib/emptyFunction');
+var emptyFunction = require('fbjs/lib/emptyFunction');
 var assign = require('object-assign');
 var event = require('./event');
 var Cursor = React.createFactory(require('./Cursor'));

@@ -1,7 +1,7 @@
 var React = require('react');
 var assign = require('object-assign');
 var PropTypes = React.PropTypes;
-var emptyFunction = require('react/lib/emptyFunction');
+var emptyFunction = require('fbjs/lib/emptyFunction');
 
 var Cursor = React.createClass({
 
