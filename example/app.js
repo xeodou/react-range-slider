@@ -1,4 +1,5 @@
 var React = window.React = require('react');
+var ReactDOM = require('react-dom');
 var RangeSlider = require('../');
 
 var App = React.createClass({
@@ -24,5 +25,5 @@ var App = React.createClass({
   }
 })
 
-React.render(<App />, document.getElementById('react-range-example'))
+ReactDOM.render(<App />, document.getElementById('react-range-example'))
 

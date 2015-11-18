@@ -1,7 +1,8 @@
 var React = require('react');
 var assign = require('object-assign');
 var PropTypes = React.PropTypes;
-var emptyFunction = require('react/lib/emptyFunction');
+
+var noop = function () {}
 
 var Cursor = React.createClass({
 
@@ -21,8 +22,8 @@ var Cursor = React.createClass({
       offset: 0,
       size: 0,
       position: 0,
-      onDragStart: emptyFunction,
-      onDragEnd: emptyFunction
+      onDragStart: noop,
+      onDragEnd: noop
     };
   },
 

@@ -1,15 +1,16 @@
 /*
-* react-range-slider - index.js
-* Copyright(c) 2015 xeodou <xeodou@gmail.com>
-* MIT Licensed
-*/
+ * react-range-slider - index.js
+ * Copyright(c) 2015 xeodou <xeodou@gmail.com>
+ * MIT Licensed
+ */
 
 var React = require('react');
 var PropTypes = React.PropTypes;
-var emptyFunction = require('react/lib/emptyFunction');
 var assign = require('object-assign');
 var event = require('./event');
 var Cursor = React.createFactory(require('./Cursor'));
+
+var noop = function () {}
 
 /**
  * To prevent text selection while dragging.
@@ -214,11 +215,11 @@ var RangeSlider = React.createClass({
       cursor: false,
       pearling: false,
       disabled: false,
-      onBeforeChange: emptyFunction,
-      onChange: emptyFunction,
-      onAfterChange: emptyFunction,
-      onBarClick: emptyFunction,
-      onMouseDown: emptyFunction
+      onBeforeChange: noop,
+      onChange: noop,
+      onAfterChange: noop,
+      onBarClick: noop,
+      onMouseDown: noop
     };
   },
 
@@ -282,8 +283,8 @@ var RangeSlider = React.createClass({
   },
 
   handleResize: function () {
-    var slider = this.refs.slider.getDOMNode();
-    var handle = this.refs.header ? this.refs.header.getDOMNode() : {};
+    var slider = this.refs.slider;
+    var handle = this.refs.header ? this.refs.header : {};
     var rect = slider.getBoundingClientRect();
 
     var size = this.isHorizontal() ? 'clientWidth' : 'clientHeight';
@@ -337,7 +338,7 @@ var RangeSlider = React.createClass({
     var _v = this.state.startValue + diffValue;
     if (i === 0) {
       // Move header
-      if(this.props.disabledHeader) return;
+      if (this.props.disabledHeader) return;
       var v = l > 0 ? finder(Math.min, this.state.value, 'value') : this.state.max;
       this.setState({
         min: parseInt(Math.max(_v <= v ? (_v < 0 ? 0 : _v) : v, this.props.min), 10)
@@ -356,7 +357,7 @@ var RangeSlider = React.createClass({
       });
     } else if (i === l + 1) {
       // Move tailer
-      if(this.props.disabledTailer) return;
+      if (this.props.disabledTailer) return;
       var v = l > 0 ? finder(Math.max, this.state.value, 'value') : this.state.min;
       this.setState({
         max: parseInt(Math.min(_v >= v ? _v : v, this.props.max))
@@ -408,14 +409,14 @@ var RangeSlider = React.createClass({
     }
     if (this.state.header) {
       cursors.splice(0, 0, Cursor(assign({}, opts, {
-          offset: this.calcOffset(this.state.min),
-          position: 0,
-          ref: 'header',
-          key: 'header',
-          className: 'cursor header',
-          value: this.state.min,
-          onDragStart: this.handleDragStart.bind(null, 0)
-        })));
+        offset: this.calcOffset(this.state.min),
+        position: 0,
+        ref: 'header',
+        key: 'header',
+        className: 'cursor header',
+        value: this.state.min,
+        onDragStart: this.handleDragStart.bind(null, 0)
+      })));
     }
     if (this.state.tailer) {
       var l = cursors.length;
