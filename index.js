@@ -6,7 +6,7 @@
 
 var React = require('react');
 var PropTypes = React.PropTypes;
-var emptyFunction = require('react/lib/emptyFunction');
+var emptyFunction = require('fbjs/lib/emptyFunction');
 var assign = require('object-assign');
 var event = require('./event');
 var Cursor = React.createFactory(require('./Cursor'));
@@ -282,8 +282,8 @@ var RangeSlider = React.createClass({
   },
 
   handleResize: function () {
-    var slider = this.refs.slider.getDOMNode();
-    var handle = this.refs.header ? this.refs.header.getDOMNode() : {};
+    var slider = this.refs.slider;
+    var handle = this.refs.header ? this.refs.header : {};
     var rect = slider.getBoundingClientRect();
 
     var size = this.isHorizontal() ? 'clientWidth' : 'clientHeight';
