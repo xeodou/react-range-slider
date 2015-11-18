@@ -10,6 +10,14 @@ var App = React.createClass({
     return {}
   },
 
+  afterChange: function () {
+    console.log('after change called');
+  },
+
+  beforeChange: function () {
+    console.log('before change called');
+  },
+
   render: function() {
     return (
       <div>
@@ -18,7 +26,7 @@ var App = React.createClass({
           <h4>A flexible Slider for reactjs</h4>
         </div>
         <div id='main'>
-          <RangeSlider value={[ '#42c6da','#3cb9ec','#42a5f5','#4a80df','#5c6bc0']} withBars cursor range={[true]}/>
+          <RangeSlider onBeforeChange={this.beforeChange} onAfterChange={this.afterChange} value={[ '#42c6da','#3cb9ec','#42a5f5','#4a80df','#5c6bc0']} withBars cursor range={[true]}/>
         </div>
       </div>
     )

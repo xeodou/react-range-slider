@@ -377,6 +377,7 @@ var RangeSlider = React.createClass({
     // Remove event handlers
     this.removeEvent(window, this.dragEventFor['move'], this.handleDrag);
     this.removeEvent(window, this.dragEventFor['end'], this.handleDragEnd);
+    e.stopPropagation();
   },
 
   handleBarClick: function (i, e) {
