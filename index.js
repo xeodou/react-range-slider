@@ -282,8 +282,8 @@ var RangeSlider = React.createClass({
   },
 
   handleResize: function () {
-    var slider = this.refs.slider.getDOMNode();
-    var handle = this.refs.header ? this.refs.header.getDOMNode() : {};
+    var slider = this.refs.slider;
+    var handle = this.refs.header ? this.refs.header : {};
     var rect = slider.getBoundingClientRect();
 
     var size = this.isHorizontal() ? 'clientWidth' : 'clientHeight';
