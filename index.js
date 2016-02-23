@@ -170,6 +170,15 @@ var RangeSlider = React.createClass({
      */
     disabledTailer: PropTypes.bool,
     /**
+     * Slider classname
+     *
+     * Example:
+     * ```
+     *  <RangeSlider className="custom-slider" />
+     * ```
+     */
+    className: PropTypes.string,
+    /**
      * Hook event for when mouse down for each cursor.
      *
      * Example:
@@ -215,6 +224,7 @@ var RangeSlider = React.createClass({
       cursor: false,
       pearling: false,
       disabled: false,
+      className: 'range-slider',
       onBeforeChange: noop,
       onChange: noop,
       onAfterChange: noop,
@@ -394,7 +404,8 @@ var RangeSlider = React.createClass({
       axis: this.state.axis,
       size: l,
       onDragEnd: this.handleDragEnd
-    }
+    };
+    var className = this.props.className + '__cursor';
     if (this.props.cursor) {
       cursors = offsets.map(function (offset, i) {
         return Cursor(assign({}, opts, {
@@ -402,7 +413,7 @@ var RangeSlider = React.createClass({
           position: i + 1,
           ref: 'cursor' + (i + 1),
           key: 'cursor' + (i + 1),
-          className: 'cursor cursor' + (i + 1),
+          className: className + ' ' + className + '_' + (i + 1),
           value: this.state.value[i] ? this.state.value[i].value : null,
           onDragStart: this.handleDragStart.bind(null, i + 1),
         }))
@@ -414,7 +425,7 @@ var RangeSlider = React.createClass({
         position: 0,
         ref: 'header',
         key: 'header',
-        className: 'cursor header',
+        className: className + ' ' + className + '_header',
         value: this.state.min,
         onDragStart: this.handleDragStart.bind(null, 0)
       })));
@@ -426,7 +437,7 @@ var RangeSlider = React.createClass({
         position: l,
         ref: 'tailer',
         key: 'tailer',
-        className: 'cursor tailer',
+        className: className + ' ' + className + '_tailer',
         value: this.state.max,
         onDragStart: this.handleDragStart.bind(null, l + 1)
       })))
@@ -449,10 +460,12 @@ var RangeSlider = React.createClass({
     };
     style[this.state.minProp] = from;
     style[this.state.maxProp] = this.state.upperBound - to;
+    var className = this.props.className + '__bar';
+    var modClassName = className + ' ' + className + '_';
     return React.createElement('div', {
       key: 'bar' + i,
       ref: 'bar' + i,
-      className: 'bar bar-' + i + (this.state.clicked === i ? ' active' : ''),
+      className: modClassName + i + (this.state.clicked === i ? ' ' + className + '_active' : ''),
       style: style,
       onClick: this.handleBarClick.bind(this, i)
     });
@@ -473,6 +486,7 @@ var RangeSlider = React.createClass({
     var offsets = this.state.value.map(this.calcOffset, this);
     var bars = this.props.withBars ? this.renderBars(offsets) : null;
     var cursors = this.renderCursors(offsets);
+    var className = this.props.className;
 
     return (
       React.createElement('div', {
@@ -480,10 +494,10 @@ var RangeSlider = React.createClass({
           style: {
             position: 'relative'
           },
-          className: 'range-slider ' + this.props.orientation
+          className: className + ' ' + className + '_' + this.props.orientation
         },
         React.createElement('div', {
-          className: 'bars'
+          className: className + '__bars'
         }, bars),
         cursors
       )

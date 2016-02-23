@@ -100,33 +100,35 @@ body {
   width: 90%;
   height: 40px;
   margin: 0 auto;
-  div {
-  }
-  .cursor {
+
+  &__cursor {
     width: 4px;
     height: inherit;
     padding: 8px;
     background-color: #FFA52F;
-    &.header {
+
+    &_header {
       height: inherit;
     }
-    & span {
+
+    span {
       position: absolute;
       bottom: 0px;
       right: 0px;
       background-color: #B5B5B5;
     }
   }
-  .bars {
+
+  &__bars {
     height: 24px;
     background-color: #BDBDBD;
     position: absolute;
     width: 100%;
-    top:15px;
-    .bar {
-      height: inherit;
-      background-color: #7C7C7C;
-    }
+    top: 15px;
   }
 
+  &__bar {
+    height: inherit;
+    background-color: #7C7C7C;
+  }
 }
