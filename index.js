@@ -301,7 +301,6 @@ var RangeSlider = React.createClass({
     if (this.props.disabled) return;
     // Make it possible to attach event handlers on top of this one
     this.props.onMouseDown(e);
-    e = this.isTouchDevice() ? e.changedTouches[e.changedTouches.length - 1] : e;
     var position = e['page' + this.state.axis];
     var value = this.state.min,
       l = this.state.value.length;
@@ -319,16 +318,12 @@ var RangeSlider = React.createClass({
 
     this.props.onBeforeChange(e, i - 1);
 
-    // Add event handlers
-    this.addEvent(window, this.dragEventFor['move'], this.handleDrag);
-    this.addEvent(window, this.dragEventFor['end'], this.handleDragEnd);
     pauseEvent(e);
   },
 
   handleDrag: function (e) {
     if (this.props.disabled) return;
 
-    e = this.isTouchDevice() ? e.changedTouches[e.changedTouches.length - 1] : e;
     var position = e['page' + this.state.axis],
       diffPosition = position - this.state.startPosition,
       diffValue = (diffPosition / this.state.upperBound) * (this.props.max - this.props.min),
@@ -374,9 +369,6 @@ var RangeSlider = React.createClass({
 
     this.props.onAfterChange(e, this.state.value);
 
-    // Remove event handlers
-    this.removeEvent(window, this.dragEventFor['move'], this.handleDrag);
-    this.removeEvent(window, this.dragEventFor['end'], this.handleDragEnd);
     e.stopPropagation();
   },
 
@@ -393,7 +385,8 @@ var RangeSlider = React.createClass({
     var opts = {
       axis: this.state.axis,
       size: l,
-      onDragEnd: this.handleDragEnd
+      onDragEnd: this.handleDragEnd,
+      onDrag: this.handleDrag,
     }
     if (this.props.cursor) {
       cursors = offsets.map(function (offset, i) {
