@@ -2,8 +2,17 @@
 var React = require('react');
 var assign = require('object-assign');
 var PropTypes = React.PropTypes;
+var event = require('./event');
 
 var noop = function () {}
+var buildUnwrappingListener = function(listener) {
+  return function(e) {
+    var unwrappedEvent = e.changedTouches[e.changedTouches.length - 1];
+    unwrappedEvent.stopPropagation = e.stopPropagation.bind(e);
+    unwrappedEvent.preventDefault = e.preventDefault.bind(e);
+    return listener(unwrappedEvent);
+  };
+}
 
 var Cursor = React.createClass({
 
@@ -13,6 +22,7 @@ var Cursor = React.createClass({
     axis: PropTypes.oneOf(['X', 'Y']),
     offset: PropTypes.number,
     onDragStart: PropTypes.func,
+    onDrag: PropTypes.func,
     onDragEnd: PropTypes.func,
     value: PropTypes.number
   },
@@ -27,6 +37,9 @@ var Cursor = React.createClass({
       onDragEnd: noop
     };
   },
+
+  // Mixin events
+  mixins: [event],
 
   getStyle: function () {
     var transform = 'translate' + this.props.axis + '(' + this.props.offset + 'px)';
@@ -45,13 +58,35 @@ var Cursor = React.createClass({
     var i = this.props.position;
     var l = this.props.size;
     props.style = this.getStyle();
-    props.onMouseDown = this.props.onDragStart;
+
+    var mousemoveListener, touchmoveListener, mouseupListener, touchendListener;
+    props.onMouseDown = function () {
+      this.addEvent(window, "mousemove", mousemoveListener);
+      this.addEvent(window, "touchmove", touchmoveListener);
+      this.addEvent(window, "mouseup", mouseupListener);
+      this.addEvent(window, "touchend", touchendListener);
+
+      return props.onDragStart.apply(null, arguments);
+    }.bind(this);
+
     props.onTouchStart = function (e) {
       e.preventDefault(); // prevent for scroll
-      return this.props.onDragStart.apply(null, arguments);
+      return buildUnwrappingListener(props.onMouseDown)(e);
     }.bind(this);
-    props.onMouseUp = this.props.onDragEnd;
-    props.onTouchEnd = this.props.onDragEnd;
+
+    mousemoveListener = props.onDrag;
+    touchmoveListener = buildUnwrappingListener(mousemoveListener);
+
+    mouseupListener = function () {
+      this.removeEvent(window, "mousemove", mousemoveListener);
+      this.removeEvent(window, "touchmove", touchmoveListener);
+      this.removeEvent(window, "mouseup", mouseupListener);
+      this.removeEvent(window, "touchend", touchendListener);
+
+      return props.onDragEnd.apply(null, arguments);
+    }.bind(this);
+    touchendListener = buildUnwrappingListener(mouseupListener);
+
     props.zIndex = (i === 0 || i === l + 1) ? 0 : i + 1;
     return props;
   },
@@ -72,41 +107,10 @@ var Cursor = React.createClass({
 module.exports = Cursor;
 
 
-},{"object-assign":32,"react":163}],2:[function(require,module,exports){
+},{"./event":2,"object-assign":32,"react":163}],2:[function(require,module,exports){
 // @credits: https://github.com/mzabriskie/react-draggable/blob/master/lib/draggable.js#L51-L120
 
 var event = {};
-
-// @credits: http://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript/4819886#4819886
-/* Conditional to fix node server side rendering of component */
-event.isTouchDevice = function () {
-  var isTouchDevice = false;
-  // Check if is Browser
-  if (typeof window !== 'undefined') {
-    isTouchDevice = 'ontouchstart' in window // works on most browsers
-      || 'onmsgesturechange' in window; // works on ie10 on ms surface
-  }
-  return isTouchDevice;
-}
-
-/**
- * simple abstraction for dragging events names
- * */
-event.dragEventFor = (function () {
-  var eventsFor = {
-    touch: {
-      start: 'touchstart',
-      move: 'touchmove',
-      end: 'touchend'
-    },
-    mouse: {
-      start: 'mousedown',
-      move: 'mousemove',
-      end: 'mouseup'
-    }
-  };
-  return eventsFor[event.isTouchDevice() ? 'touch' : 'mouse'];
-})()
 
 event.addEvent = function (el, event, handler) {
   if (!el) {
@@ -481,7 +485,6 @@ var RangeSlider = React.createClass({
     if (this.props.disabled) return;
     // Make it possible to attach event handlers on top of this one
     this.props.onMouseDown(e);
-    e = this.isTouchDevice() ? e.changedTouches[e.changedTouches.length - 1] : e;
     var position = e['page' + this.state.axis];
     var value = this.state.min,
       l = this.state.value.length;
@@ -499,16 +502,12 @@ var RangeSlider = React.createClass({
 
     this.props.onBeforeChange(e, i - 1);
 
-    // Add event handlers
-    this.addEvent(window, this.dragEventFor['move'], this.handleDrag);
-    this.addEvent(window, this.dragEventFor['end'], this.handleDragEnd);
     pauseEvent(e);
   },
 
   handleDrag: function (e) {
     if (this.props.disabled) return;
 
-    e = this.isTouchDevice() ? e.changedTouches[e.changedTouches.length - 1] : e;
     var position = e['page' + this.state.axis],
       diffPosition = position - this.state.startPosition,
       diffValue = (diffPosition / this.state.upperBound) * (this.props.max - this.props.min),
@@ -554,9 +553,6 @@ var RangeSlider = React.createClass({
 
     this.props.onAfterChange(e, this.state.value);
 
-    // Remove event handlers
-    this.removeEvent(window, this.dragEventFor['move'], this.handleDrag);
-    this.removeEvent(window, this.dragEventFor['end'], this.handleDragEnd);
     e.stopPropagation();
   },
 
@@ -573,7 +569,8 @@ var RangeSlider = React.createClass({
     var opts = {
       axis: this.state.axis,
       size: l,
-      onDragEnd: this.handleDragEnd
+      onDragEnd: this.handleDragEnd,
+      onDrag: this.handleDrag,
     }
     if (this.props.cursor) {
       cursors = offsets.map(function (offset, i) {
