@@ -2,37 +2,6 @@
 
 var event = {};
 
-// @credits: http://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript/4819886#4819886
-/* Conditional to fix node server side rendering of component */
-event.isTouchDevice = function () {
-  var isTouchDevice = false;
-  // Check if is Browser
-  if (typeof window !== 'undefined') {
-    isTouchDevice = 'ontouchstart' in window // works on most browsers
-      || 'onmsgesturechange' in window; // works on ie10 on ms surface
-  }
-  return isTouchDevice;
-}
-
-/**
- * simple abstraction for dragging events names
- * */
-event.dragEventFor = (function () {
-  var eventsFor = {
-    touch: {
-      start: 'touchstart',
-      move: 'touchmove',
-      end: 'touchend'
-    },
-    mouse: {
-      start: 'mousedown',
-      move: 'mousemove',
-      end: 'mouseup'
-    }
-  };
-  return eventsFor[event.isTouchDevice() ? 'touch' : 'mouse'];
-})()
-
 event.addEvent = function (el, event, handler) {
   if (!el) {
     return;
